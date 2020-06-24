@@ -5,7 +5,7 @@ from selenium.webdriver.common.keys import Keys
 # INITIALIZE THE DRIVER
 #
 
-CHROMEDRIVER_PATH = "/usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask/Casks/chromedriver.rb" # (or wherever yours is installed)
+CHROMEDRIVER_PATH = "/usr/local/bin/chromedriver"
 
 driver = webdriver.Chrome(CHROMEDRIVER_PATH)
 
@@ -19,8 +19,8 @@ driver = webdriver.Chrome(CHROMEDRIVER_PATH)
 # NAVIGATE TO GOOGLE.COM...
 #
 
-driver.get("https://www.google.com/")
-print(driver.title) #> Google
+driver.get("https://www.bls.gov/news.release/empsit.toc.htm")
+print(driver.title) #> BLS Employment Situation
 driver.save_screenshot("search_page.png")
 
 #
@@ -35,11 +35,22 @@ searchbox = driver.find_element_by_xpath(searchbox_xpath)
 # INTERACT WITH THE ELEMENT
 #
 
-search_term = "Prof Rossetti GitHub"
+clickbox_xpath = '//input[@name="Employment Situation Summary"]'
+clickbox = driver.find_element_by_xpath(clickbox_xpath)
+
+
+#element = driver.find_element :xpath, '//input[@name="Employment Situation Summary"]'
+#element.click()
+
+# search_term = "Employment Situation Summary"
+#first_link = driver.find_element_by_link_text(u'Employment Situation Summary')
+#first_link.click()
+
+#click(search_term)
 searchbox.send_keys(search_term)
 
 searchbox.send_keys(Keys.RETURN)
-print(driver.title) #> 'Prof Rossetti GitHub - Google Search'
+print(driver.title) #> 'Employment Situation Summary- BLS Search'
 driver.save_screenshot("search_results.png")
 
 #
