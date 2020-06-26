@@ -1,60 +1,57 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+import requests
+from bs4 import BeautifulSoup # note that the import package command is `bs4`
 
 #
-# INITIALIZE THE DRIVER
+# INITIALIZE THE DRIVER and Capture Screen Shots
 #
 
 CHROMEDRIVER_PATH = "/usr/local/bin/chromedriver"
 
 driver = webdriver.Chrome(CHROMEDRIVER_PATH)
 
-# ... OR IN "HEADLESS MODE"...
-# options = webdriver.ChromeOptions()
-# options.add_argument('--incognito')
-# options.add_argument('--headless')
-# driver = webdriver.Chrome(CHROMEDRIVER_PATH, chrome_options=options)
-
-#
-# NAVIGATE TO GOOGLE.COM...
-#
-
-driver.get("https://www.bls.gov/news.release/empsit.toc.htm")
+driver.get("https://www.bls.gov/news.release/empsit.nr0.htm")
 print(driver.title) #> BLS Employment Situation
-driver.save_screenshot("search_page.png")
-
-#
-# FIND AN ELEMENT TO INTERACT WITH...
-# a reference to the HTML element:
-# <input title="Search">
-
-searchbox_xpath = '//input[@title="Search"]'
-searchbox = driver.find_element_by_xpath(searchbox_xpath)
-
-#
-# INTERACT WITH THE ELEMENT
-#
-
-clickbox_xpath = '//input[@name="Employment Situation Summary"]'
-clickbox = driver.find_element_by_xpath(clickbox_xpath)
+driver.save_screenshot("unemployment_rate.pdf")
 
 
-#element = driver.find_element :xpath, '//input[@name="Employment Situation Summary"]'
-#element.click()
+                                                                                                                                                                              
+#generates the email using SendGrid
+def send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", pdf="unemployment_rate.pdf"):
+    client = SendGridAPIClient(SENDGRID_API_KEY) #> <class 'sendgrid.sendgrid.SendGridAPIClient>
+    message = Mail(from_email=MY_EMAIL, to_emails=MY_EMAIL, subject=subject, html_content=html)
+    #attaches the PDF we generated earlier
+    #file_path = 'unemployment_rate.png'
+    with open(file_path, 'rb') as f:
+       data = f.read()
+       f.close()
+    encoded = base64.b64encode(data).decode()
+    attachment = Attachment()
+    attachment.file_content = FileContent(encoded)
+    attachment.file_type = FileType('application/pdf')
+    attachment.file_name = FileName('unemployment_rate.pdf')
+    attachment.disposition = Disposition('attachment')
+    attachment.content_id = ContentId('Example Content ID')
+    message.attachment = attachment
+    #send email
+    try:
+        response = client.send(message)
+        return response
+    except Exception as e:
+        print("OOPS", e.message)
+        return None
 
-# search_term = "Employment Situation Summary"
-#first_link = driver.find_element_by_link_text(u'Employment Situation Summary')
-#first_link.click()
-
-#click(search_term)
-searchbox.send_keys(search_term)
-
-searchbox.send_keys(Keys.RETURN)
-print(driver.title) #> 'Employment Situation Summary- BLS Search'
-driver.save_screenshot("search_results.png")
-
-#
-# ALWAYS QUIT THE DRIVER
-#
-
-driver.quit()
+#where we get into the actual contents of the email, the message, subject, etc.
+if __name__ == "__main__":
+    email_subject = "Unemployment Data"
+    email_html = f""" 
+    <h3> Good Morning Alexa, the current unemployment rate in the U.S is attached</h3>
+    """
+    email_pdf = "unemployment_rate.pdf"
+    #send my message to users
+    send_email(email_subject, email_html, email_pdf)
+    print(" ")
+    print("Your email has been sent!")
+    print(" ")
+    
