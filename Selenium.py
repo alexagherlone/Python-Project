@@ -15,9 +15,46 @@ driver.get("https://www.bls.gov/news.release/empsit.nr0.htm")
 print(driver.title) #> BLS Employment Situation
 driver.save_screenshot("unemployment_rate.pdf")
 
+#Generates Email Using SendGrid (Option 1)
+import os
+import base64
+
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import (Mail, Attachment, FileContent, FileName, FileType, Disposition)
+
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
+MY_EMAIL = os.environ.get("MY_EMAIL_ADDRESS")
+
+message = Mail(
+    from_email='MY_EMAIL_ADDRESS',
+    to_emails='MY_EMAIL_ADDRESS',
+    subject='Unemployment Data',
+    html_content='<Updated U.S Unemployment Rate Attached>'
+)
+
+with open('unemployment_rate.pdf', 'rb') as f:
+    data = f.read()
+    f.close()
+encoded_file = base64.b64encode(data).decode()
+
+attachedFile = Attachment(
+    FileContent(encoded_file),
+    FileName('unemployment_rate.pdf'),
+    FileType('application/pdf'),
+    Disposition('attachment')
+)
+message.attachment = attachedFile
+
+sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+response = sg.send(message)
+print(response.status_code, response.body, response.headers)
 
                                                                                                                                                                               
-#generates the email using SendGrid
+#Generates the email using SendGrid (Option 2)
+
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
+MY_EMAIL = os.environ.get("MY_EMAIL_ADDRESS")
+
 def send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", pdf="unemployment_rate.pdf"):
     client = SendGridAPIClient(SENDGRID_API_KEY) #> <class 'sendgrid.sendgrid.SendGridAPIClient>
     message = Mail(from_email=MY_EMAIL, to_emails=MY_EMAIL, subject=subject, html_content=html)
