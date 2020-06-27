@@ -45,7 +45,8 @@ def send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", png
     attachment.disposition = 'attachment'
     attachment.content_id = ContentId('Example Content ID')
     message.attachment = attachment
-    
+
+#Citing the Code Author: https://github.com/Gplafferty0219/workout-app/blob/master/app/workout.py 
     #Send Email
     try:
         response = client.send(message)
