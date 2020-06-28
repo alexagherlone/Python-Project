@@ -2,10 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import requests
 from bs4 import BeautifulSoup # note that the import package command is `bs4`
-
-#
 # INITIALIZE THE DRIVER and Capture Screen Shots
-#
 
 CHROMEDRIVER_PATH = "/usr/local/bin/chromedriver"
 
@@ -26,12 +23,14 @@ MY_EMAIL = os.environ.get("MY_EMAIL_ADDRESS")
                                                                                                                                                                 
 # Citing the Code Author: https://github.com/sendgrid/sendgrid-python/issues/340
 
-def send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", png="unemployment_rate.png"):
+image_name = os.path.join(os.path.dirname(__file__), "../unemployment_rate.png")
+
+def send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", png=image_name):
     client = SendGridAPIClient(SENDGRID_API_KEY) #> <class 'sendgrid.sendgrid.SendGridAPIClient>
     message = Mail(from_email=MY_EMAIL, to_emails=MY_EMAIL, subject=subject, html_content=html)
     
     #attaches the PNG we generated earlier
-    image_name = 'unemployment_rate.png'
+
     with open(image_name, 'rb') as f:
         image = f.read()
         f.close()
@@ -62,7 +61,7 @@ def send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", png
         email_html = f""" 
         <p> Unemployment Data </p>
         """
-        email_png = "unemployment_rate.png"
+        email_png = image_name
    
         #send my message to users
-        send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", png="unemployment_rate.png")
+        send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", png=image_name)
