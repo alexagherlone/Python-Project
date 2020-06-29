@@ -3,6 +3,11 @@ from selenium.webdriver.common.keys import Keys
 import requests
 from bs4 import BeautifulSoup # note that the import package command is `bs4`
 # INITIALIZE THE DRIVER and Capture Screen Shots
+import os
+from dotenv import load_dotenv
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
+
 
 CHROMEDRIVER_PATH = "/usr/local/bin/chromedriver"
 
@@ -13,17 +18,15 @@ print(driver.title) #> BLS Employment Situation
 driver.save_screenshot("unemployment_rate.png")
 
 #Generates Email Using SendGrid (Option 1)
-import os
 
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import (Mail, Attachment, FileContent, FileName, FileType, Disposition)
 
+load_dotenv()
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 MY_EMAIL = os.environ.get("MY_EMAIL_ADDRESS")
                                                                                                                                                                 
 # Citing the Code Author: https://github.com/sendgrid/sendgrid-python/issues/340
 
-image_name = os.path.join(os.path.dirname(__file__), "../unemployment_rate.png")
+image_name = os.path.join(os.path.dirname(__file__), "unemployment_rate.png")
 
 def send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", png=image_name):
     client = SendGridAPIClient(SENDGRID_API_KEY) #> <class 'sendgrid.sendgrid.SendGridAPIClient>
@@ -31,37 +34,40 @@ def send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", png
     
     #attaches the PNG we generated earlier
 
-    with open(image_name, 'rb') as f:
-        image = f.read()
-        f.close()
+    #with open(image_name, 'rb') as f:
+        #image = f.read()
+        #f.close()
 
-    image_encoded = base64.b64encode(image)
+    #image_encoded = base64.b64encode(image)
 
-    attachment = Attachment()
-    attachment.content = image_encoded
-    attachment.type = "image/png"
-    attachment.filename = image_name
-    attachment.disposition = 'attachment'
-    attachment.content_id = ContentId('Example Content ID')
-    message.attachment = attachment
+    #attachment = Attachment()
+    #attachment.content = image_encoded
+    #attachment.type = "image/png"
+    #attachment.filename = image_name
+    #attachment.disposition = 'attachment'
+    #attachment.content_id = ContentId('Example Content ID')
+    #message.attachment = attachment
 
-#Citing the Code Author: https://github.com/Gplafferty0219/workout-app/blob/master/app/workout.py 
+    #Citing the Code Author: https://github.com/Gplafferty0219/workout-app/blob/master/app/workout.py 
     #Send Email
     try:
         response = client.send(message)
+        print(response.status_code)
+        print(response.body)
         return response
+        
     except Exception as e:
         print("OOPS", e.message)
         return None
     
     #Email Contents
 
-    if __name__ == "__main__":
-        email_subject = "Unemployment Data"
-        email_html = f""" 
-        <p> Unemployment Data </p>
-        """
-        email_png = image_name
-   
-        #send my message to users
-        send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", png=image_name)
+if __name__ == "__main__":
+    email_subject = "Unemployment Data"
+    email_html = f""" 
+    <p> Unemployment Data </p>
+    """
+    email_png = image_name
+
+    #send my message to users
+    send_email(subject="Unemployment Data", html="<p>Unemployment Data</p>", png=image_name)
